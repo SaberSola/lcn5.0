@@ -52,13 +52,13 @@ public class NettyClientRetryHandler extends ChannelInboundHandlerAdapter {
     private NettyRpcCmd heartCmd;
 
     @Autowired
-    public NettyClientRetryHandler(ClientInitCallBack clientInitCallBack) {
+    public NettyClientRetryHandler(ClientInitCallBack initCallBack) {
         MessageDto messageDto = new MessageDto();
         messageDto.setAction(MessageConstants.ACTION_HEART_CHECK);
         heartCmd = new NettyRpcCmd();
         heartCmd.setMsg(messageDto);
         heartCmd.setKey(RandomUtils.simpleKey());
-        this.clientInitCallBack = clientInitCallBack;
+        this.clientInitCallBack = initCallBack;
     }
 
     @Override
