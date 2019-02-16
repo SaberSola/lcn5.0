@@ -68,7 +68,7 @@ public class LoopMessenger implements ReliableMessenger {
     @Override
     public void notifyGroup(String groupId, int transactionState) throws RpcException, LcnBusinessException {
         NotifyGroupParams notifyGroupParams = new NotifyGroupParams();
-        notifyGroupParams.setGroupId(groupId);
+        notifyGroupParams.setGroupId(groupId); //事务组Id
         notifyGroupParams.setState(transactionState);
         MessageDto messageDto = request0(MessageCreator.notifyGroup(notifyGroupParams),
                 clientConfig.getTmRpcTimeout() * clientConfig.getChainLevel());
@@ -80,21 +80,30 @@ public class LoopMessenger implements ReliableMessenger {
 
     @Override
     public void joinGroup(String groupId, String unitId, String unitType, int transactionState) throws RpcException, LcnBusinessException {
+        /**
+         * key joinGroup
+         */
         JoinGroupParams joinGroupParams = new JoinGroupParams();
-        joinGroupParams.setGroupId(groupId);
-        joinGroupParams.setUnitId(unitId);
-        joinGroupParams.setUnitType(unitType);
-        joinGroupParams.setTransactionState(transactionState);
-        MessageDto messageDto = request(MessageCreator.joinGroup(joinGroupParams));
+        joinGroupParams.setGroupId(groupId); //事务组Id
+        joinGroupParams.setUnitId(unitId);   //事务单元Id
+        joinGroupParams.setUnitType(unitType); //事务单元类型
+        joinGroupParams.setTransactionState(transactionState); //分布事务状态
+        MessageDto messageDto = request(MessageCreator.joinGroup(joinGroupParams)); //封住messageDto 并发送事务消息
         if (!MessageUtils.statusOk(messageDto)) {
             throw new LcnBusinessException(messageDto.loadBean(Throwable.class));
         }
     }
 
+    /**
+     * 创建事务组
+     * @param groupId groupId
+     * @throws RpcException
+     * @throws LcnBusinessException
+     */
     @Override
     public void createGroup(String groupId) throws RpcException, LcnBusinessException {
         // TxManager创建事务组
-        MessageDto messageDto = request(MessageCreator.createGroup(groupId));
+        MessageDto messageDto = request(MessageCreator.createGroup(groupId));  // 创建事务组MessageDto
         if (!MessageUtils.statusOk(messageDto)) {
             throw new LcnBusinessException(messageDto.loadBean(Throwable.class));
         }
@@ -154,6 +163,7 @@ public class LoopMessenger implements ReliableMessenger {
      * @param whenNonManagerMessage 异常提示
      * @return MessageDto
      * @throws RpcException RpcException
+     * 发送非所有的tm
      */
     private MessageDto request(MessageDto messageDto, long timeout, String whenNonManagerMessage) throws RpcException {
         for (int i = 0; i < rpcClient.loadAllRemoteKey().size() + 1; i++) {

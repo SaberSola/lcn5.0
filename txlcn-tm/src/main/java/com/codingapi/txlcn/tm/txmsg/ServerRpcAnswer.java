@@ -61,14 +61,16 @@ public class ServerRpcAnswer implements RpcAnswer, DisposableBean {
 
     @Override
     public void callback(RpcCmd rpcCmd) {
+        //异步执行
         executorService.submit(() -> {
             try {
+
                 TransactionCmd transactionCmd = parser(rpcCmd);
                 String action = transactionCmd.getMsg().getAction();
                 RpcExecuteService rpcExecuteService = rpcBeanHelper.loadManagerService(transactionCmd.getType());
                 MessageDto messageDto = null;
                 try {
-                    Serializable message = rpcExecuteService.execute(transactionCmd);
+                    Serializable message = rpcExecuteService.execute(transactionCmd); //当cmd为create-group
                     messageDto = MessageCreator.okResponse(message, action);
                 } catch (Throwable e) {
                     log.error("rpc execute service error. action: " + action, e);
@@ -80,7 +82,7 @@ public class ServerRpcAnswer implements RpcAnswer, DisposableBean {
                         try {
                             messageDto.setGroupId(rpcCmd.getMsg().getGroupId());
                             rpcCmd.setMsg(messageDto);
-                            rpcClient.send(rpcCmd);
+                            rpcClient.send(rpcCmd); //这里只需要知道发送的状态
                         } catch (RpcException ignored) {
                         }
                     }

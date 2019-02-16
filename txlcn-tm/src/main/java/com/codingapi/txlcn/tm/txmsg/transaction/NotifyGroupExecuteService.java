@@ -57,14 +57,21 @@ public class NotifyGroupExecuteService implements RpcExecuteService {
         this.dtxContextRegistry = dtxContextRegistry;
     }
 
+    /**
+     * 接收客户端的通知
+     * @param transactionCmd  transactionCmd
+     * @return
+     * @throws TxManagerException
+     */
     @Override
     public Serializable execute(TransactionCmd transactionCmd) throws TxManagerException {
         try {
+
             DTXContext dtxContext = dtxContextRegistry.get(transactionCmd.getGroupId());
             // 解析参数
-            NotifyGroupParams notifyGroupParams = transactionCmd.getMsg().loadBean(NotifyGroupParams.class);
+            NotifyGroupParams notifyGroupParams = transactionCmd.getMsg().loadBean(NotifyGroupParams.class); // 事务组Id 事务状态
             log.debug("notify group params: {}", JSON.toJSONString(notifyGroupParams));
-
+            // 0 回滚 1 提交
             int commitState = notifyGroupParams.getState();
             // 获取事务状态（当手动回滚时会先设置状态）
             int transactionState = transactionManager.transactionStateFromFastStorage(transactionCmd.getGroupId());

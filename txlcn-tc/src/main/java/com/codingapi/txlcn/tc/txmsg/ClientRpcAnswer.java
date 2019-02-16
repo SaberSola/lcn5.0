@@ -61,11 +61,18 @@ public class ClientRpcAnswer implements RpcAnswer, DisposableBean {
 
     @Override
     public void callback(RpcCmd rpcCmd) {
+        /**
+         * 接收ServerRpcAnswer发送的信息
+         */
         executorService.submit(() -> {
             log.debug("Receive Message: {}", rpcCmd.getMsg());
             TransactionCmd transactionCmd = MessageParser.parser(rpcCmd);
             String transactionType = transactionCmd.getTransactionType();
             String action = transactionCmd.getMsg().getAction();
+            /**
+             *
+             * create-group 未找到相应的service ？？？？
+             */
             RpcExecuteService executeService =
                     transactionBeanHelper.loadRpcExecuteService(transactionType, transactionCmd.getType());
             MessageDto messageDto = null;

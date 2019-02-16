@@ -128,7 +128,8 @@ public class SocketManager {
         channel.writeAndFlush(nettyRpcCmd);
         log.debug("await response");
         if (timeout < 1) {
-            nettyRpcCmd.await();
+            //发送消息后阻塞
+            nettyRpcCmd.await();  //在cmd解码器那边唤醒
         } else {
             nettyRpcCmd.await(timeout);
         }

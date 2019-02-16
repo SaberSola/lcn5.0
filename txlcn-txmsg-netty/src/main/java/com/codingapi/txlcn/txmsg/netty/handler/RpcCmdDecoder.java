@@ -63,13 +63,13 @@ public class RpcCmdDecoder extends SimpleChannelInboundHandler<NettyRpcCmd> {
             }
         }
 
-        //需要响应的数据包
-        if (!StringUtils.isEmpty(key)) {
+        //需要响应的数据包 跑到这里唤醒阻塞 牛批啊 卧槽
+        if (!StringUtils.isEmpty(key)) { //key 为null 的就要继续执行下个handler
             RpcContent rpcContent = cmd.loadRpcContent();
             if (rpcContent != null) {
                 log.debug("got response message[Netty Handler]");
                 rpcContent.setRes(cmd.getMsg());
-                rpcContent.signal();
+                rpcContent.signal(); //不继续执行下个handler
             } else {
                 ctx.fireChannelRead(cmd);
             }

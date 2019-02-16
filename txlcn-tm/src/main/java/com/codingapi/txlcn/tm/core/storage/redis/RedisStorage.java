@@ -90,7 +90,14 @@ public class RedisStorage implements FastStorage {
 
     @Override
     public void saveTransactionUnitToGroup(String groupId, TransactionUnit transactionUnit) throws FastStorageException {
+        /**
+         * 这是加入事务组到Redis 缓存中
+         */
+
         if (Optional.ofNullable(redisTemplate.hasKey(REDIS_GROUP_PREFIX + groupId)).orElse(false)) {
+            /**
+             * 很机智 可以看出 采用hash存储 域为groupId key:事务单元Id value 事务单元
+             */
             redisTemplate.opsForHash().put(REDIS_GROUP_PREFIX + groupId, transactionUnit.getUnitId(), transactionUnit);
             return;
         }

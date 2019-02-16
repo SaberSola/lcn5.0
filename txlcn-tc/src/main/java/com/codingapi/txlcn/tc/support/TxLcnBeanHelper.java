@@ -85,6 +85,7 @@ public class TxLcnBeanHelper {
             log.debug("getRpcBeanName->{}", name);
             return name;
         } else {
+            // transactionType == null
             String name = String.format(RPC_BEAN_NAME_FORMAT.replaceFirst("_%s", ""), cmdType.getCode());
             log.debug("getRpcBeanName->{}", name);
             return name;
@@ -111,10 +112,15 @@ public class TxLcnBeanHelper {
     }
 
     private RpcExecuteService loadRpcExecuteService(String beanName) {
-        return spring.getBean(beanName, RpcExecuteService.class);
+        return spring.getBean(beanName, RpcExecuteService.class);  // 创建事务组的时候 rpc_create-group
     }
 
     public TransactionCleanService loadTransactionCleanService(String transactionType) {
         return spring.getBean(String.format(TRANSACTION_CLEAN_SERVICE_NAME_FORMAT, transactionType), TransactionCleanService.class);
+    }
+
+    public static void main(String[] args){
+        String name = String.format(RPC_BEAN_NAME_FORMAT.replaceFirst("_%s", ""), "create-group");
+        System.out.println(name);
     }
 }

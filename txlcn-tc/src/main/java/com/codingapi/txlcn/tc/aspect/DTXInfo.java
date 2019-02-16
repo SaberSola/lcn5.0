@@ -37,13 +37,13 @@ import java.util.Objects;
 @AllArgsConstructor
 @Data
 public class DTXInfo {
-    private static final Map<String, DTXInfo> dtxInfoCache = new ConcurrentReferenceHashMap<>();
+    private static final Map<String, DTXInfo> dtxInfoCache = new ConcurrentReferenceHashMap<>();  //全局缓存 存放事务单元
 
-    private String transactionType;
+    private String transactionType;  //事务类型
 
-    private DTXPropagation transactionPropagation;
+    private DTXPropagation transactionPropagation;  //事务的传播机制
 
-    private TransactionInfo transactionInfo;
+    private TransactionInfo transactionInfo;  //事务信息
 
     /**
      * 用户实例对象的业务方法（包含注解信息）
@@ -54,14 +54,14 @@ public class DTXInfo {
 
     private DTXInfo(Method method, Object[] args, Class<?> targetClass) {
         this.transactionInfo = new TransactionInfo();
-        this.transactionInfo.setTargetClazz(targetClass);
-        this.transactionInfo.setArgumentValues(args);
-        this.transactionInfo.setMethod(method.getName());
-        this.transactionInfo.setMethodStr(method.toString());
-        this.transactionInfo.setParameterTypes(method.getParameterTypes());
+        this.transactionInfo.setTargetClazz(targetClass);  //事务执行器  class
+        this.transactionInfo.setArgumentValues(args);    //参数值数组
+        this.transactionInfo.setMethod(method.getName()); //方法
+        this.transactionInfo.setMethodStr(method.toString()); //方法字符串
+        this.transactionInfo.setParameterTypes(method.getParameterTypes()); //参数类型
 
         this.businessMethod = method;
-        this.unitId = Transactions.unitId(method.toString());
+        this.unitId = Transactions.unitId(method.toString()); //方法签名生成事务单元ID
     }
 
     private void reanalyseMethodArgs(Object[] args) {
@@ -69,6 +69,7 @@ public class DTXInfo {
     }
 
     public static DTXInfo getFromCache(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        //
         String signature = proceedingJoinPoint.getSignature().toString();
         String unitId = Transactions.unitId(signature);
         DTXInfo dtxInfo = dtxInfoCache.get(unitId);

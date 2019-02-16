@@ -49,10 +49,14 @@ public class CreateGroupExecuteService implements RpcExecuteService {
     @Override
     public Serializable execute(TransactionCmd transactionCmd) throws TxManagerException {
         try {
+            /**
+             * 开始创建事务组
+             */
             transactionManager.begin(transactionCmd.getGroupId());
         } catch (TransactionException e) {
             throw new TxManagerException(e);
         }
+        // 日志记录
         txLogger.transactionInfo(transactionCmd.getGroupId(), null, "create group");
         return null;
     }

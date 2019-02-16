@@ -65,14 +65,20 @@ public class LcnRunningTransaction implements DTXLocalControl {
             log.error("{} > clean transaction error." , Transactions.LCN);
         }
     }
-    
-    
+
+
+    /**
+     * 参与发
+     * @param info info
+     * @param result result
+     * @throws TransactionException
+     */
     @Override
     public void onBusinessCodeSuccess(TxTransactionInfo info, Object result) throws TransactionException {
         log.debug("join group: [GroupId: {},Method: {}]" , info.getGroupId(),
                 info.getTransactionInfo().getMethodStr());
         
-        // join DTX group
+        // join DTX group 加入事务组 groupId unitId 事务单元id type 事务类型 info:事务切面信息
         transactionControlTemplate.joinGroup(info.getGroupId(), info.getUnitId(), info.getTransactionType(),
                 info.getTransactionInfo());
     }

@@ -41,6 +41,13 @@ public class DTXResourceWeaver {
         this.txLcnBeanHelper = txLcnBeanHelper;
     }
 
+    /**
+     * 用了大量的回调函数
+     * 先判断DTXLocalContext(事务远程控制对象) 中是否是代理资源
+     * @param connectionCallback
+     * @return
+     * @throws Throwable
+     */
     public Object getConnection(ConnectionCallback connectionCallback) throws Throwable {
         DTXLocalContext dtxLocalContext = DTXLocalContext.cur();
         if (Objects.nonNull(dtxLocalContext) && dtxLocalContext.isProxy()) {

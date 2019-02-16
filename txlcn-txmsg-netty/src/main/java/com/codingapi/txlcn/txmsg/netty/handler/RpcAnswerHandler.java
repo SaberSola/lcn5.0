@@ -43,6 +43,6 @@ public class RpcAnswerHandler extends SimpleChannelInboundHandler<RpcCmd> {
     protected void channelRead0(ChannelHandlerContext ctx, RpcCmd cmd) {
         String remoteKey = ctx.channel().remoteAddress().toString();
         cmd.setRemoteKey(remoteKey);
-        rpcClientAnswer.callback(cmd);
+        rpcClientAnswer.callback(cmd); //cmd包括 messageDto remote key
     }
 }

@@ -41,7 +41,7 @@ public class LcnStartingTransaction implements DTXLocalControl {
 
     @Override
     public void preBusinessCode(TxTransactionInfo info) throws TransactionException {
-        // create DTX group
+        // create DTX group  创建分布式事务组
         transactionControlTemplate.createGroup(
                 info.getGroupId(), info.getUnitId(), info.getTransactionInfo(), info.getTransactionType());
 

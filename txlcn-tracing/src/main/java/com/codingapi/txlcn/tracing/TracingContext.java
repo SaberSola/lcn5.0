@@ -32,13 +32,13 @@ import java.util.*;
  * 2. {@code fields}不为空，fields.get(TracingConstants.GROUP_ID) 是 {@code empty}。参与方出现，未开启事务组。
  * 3. TBD
  * Date: 19-1-28 下午4:21
- *
+ * 事务追踪类
  * @author ujued
  */
 @Slf4j
 public class TracingContext {
 
-    private static ThreadLocal<TracingContext> tracingContextThreadLocal = new ThreadLocal<>();
+    private static ThreadLocal<TracingContext> tracingContextThreadLocal = new ThreadLocal<>(); //ThreadLocal存储
 
     private TracingContext() {
 
@@ -48,15 +48,16 @@ public class TracingContext {
         if (tracingContextThreadLocal.get() == null) {
             tracingContextThreadLocal.set(new TracingContext());
         }
-        return tracingContextThreadLocal.get();
+        return tracingContextThreadLocal.get();  //获取追踪上下文
     }
 
     private Map<String, String> fields;
 
-    public void beginTransactionGroup() {
+    public void beginTransactionGroup() {  //分布式事务开始
         if (hasGroup()) {
             return;
         }
+        //初始化事务组Id key1 value2 key2 value2
         init(Maps.newHashMap(TracingConstants.GROUP_ID, RandomUtils.randomKey(), TracingConstants.APP_MAP, "{}"));
     }
 
@@ -73,7 +74,9 @@ public class TracingContext {
         }
         this.fields.putAll(initFields);
     }
-
+    //判断是不是存在事务组
+    //false 代表不存在事务组 则是事务的发起方
+    //true 代表存在事务组 则是事务的参与方
     public boolean hasGroup() {
         return Objects.nonNull(fields) && fields.containsKey(TracingConstants.GROUP_ID) &&
                 StringUtils.hasText(fields.get(TracingConstants.GROUP_ID));
@@ -134,5 +137,10 @@ public class TracingContext {
 
     private void raiseNonGroupException() {
         throw new IllegalStateException("non group id.");
+    }
+
+    public static void main(String[] args){
+        TracingContext tracingContext = new TracingContext();
+        System.out.println(tracingContext.baseString2appMap("{}"));
     }
 }

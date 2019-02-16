@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Description:
  * Company: CodingApi
  * Date: 2018/12/10
- *
+ * 全局事务所
  * @author ujued
  */
 public class RpcContent {

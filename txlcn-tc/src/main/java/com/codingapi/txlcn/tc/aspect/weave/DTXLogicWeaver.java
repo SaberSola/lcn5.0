@@ -39,7 +39,7 @@ import java.util.Objects;
 @Slf4j
 public class DTXLogicWeaver {
 
-    private final DTXServiceExecutor transactionServiceExecutor;
+    private final DTXServiceExecutor transactionServiceExecutor;   //分布式事务业务执行器
 
     private final TCGlobalContext globalContext;
 
@@ -58,11 +58,11 @@ public class DTXLogicWeaver {
         }
 
         log.debug("<---- TxLcn start ---->");
-        DTXLocalContext dtxLocalContext = DTXLocalContext.getOrNew();
-        TxContext txContext;
+        DTXLocalContext dtxLocalContext = DTXLocalContext.getOrNew(); //创建一分布式事务远程控制对象
+        TxContext txContext;  //事务的上下文
         if (globalContext.hasTxContext()) {
-            // 有事务上下文的获取父上下文
-            txContext = globalContext.txContext();
+            // 有事务上下文的获取父上下 文
+            txContext = globalContext.txContext(); // 参与者的话 直接获取发起者的
             dtxLocalContext.setInGroup(true);
             log.debug("Unit[{}] used parent's TxContext[{}].", dtxInfo.getUnitId(), txContext.getGroupId());
         } else {
@@ -75,23 +75,24 @@ public class DTXLogicWeaver {
             dtxLocalContext.setDestroy(false);
         }
 
-        dtxLocalContext.setUnitId(dtxInfo.getUnitId());
-        dtxLocalContext.setGroupId(txContext.getGroupId());
-        dtxLocalContext.setTransactionType(dtxInfo.getTransactionType());
+        dtxLocalContext.setUnitId(dtxInfo.getUnitId());//设置事务的单元Id
+        dtxLocalContext.setGroupId(txContext.getGroupId());//设置事务组Id
+        dtxLocalContext.setTransactionType(dtxInfo.getTransactionType());//事务的类型
 
         // 事务参数
         TxTransactionInfo info = new TxTransactionInfo();
-        info.setBusinessCallback(business);
-        info.setGroupId(txContext.getGroupId());
-        info.setUnitId(dtxInfo.getUnitId());
-        info.setPointMethod(dtxInfo.getBusinessMethod());
-        info.setPropagation(dtxInfo.getTransactionPropagation());
-        info.setTransactionInfo(dtxInfo.getTransactionInfo());
-        info.setTransactionType(dtxInfo.getTransactionType());
-        info.setTransactionStart(txContext.isDtxStart());
+        info.setBusinessCallback(business);// 业务执行器
+        info.setGroupId(txContext.getGroupId()); // 事务组Id
+        info.setUnitId(dtxInfo.getUnitId()); //事务单元Id
+        info.setPointMethod(dtxInfo.getBusinessMethod()); //切点方法
+        info.setPropagation(dtxInfo.getTransactionPropagation()); // 事务的传播机制
+        info.setTransactionInfo(dtxInfo.getTransactionInfo()); //事务切面信息
+        info.setTransactionType(dtxInfo.getTransactionType()); //事务的的类型
+        info.setTransactionStart(txContext.isDtxStart()); //是否是事务的发起者
 
         //LCN事务处理器
         try {
+            //开始执行
             return transactionServiceExecutor.transactionRunning(info);
         } finally {
             if (dtxLocalContext.isDestroy()) {

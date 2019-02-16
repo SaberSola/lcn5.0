@@ -63,14 +63,14 @@ public class DTXServiceExecutor {
     public Object transactionRunning(TxTransactionInfo info) throws Throwable {
 
         // 1. 获取事务类型
-        String transactionType = info.getTransactionType();
+        String transactionType = info.getTransactionType(); // lcn txc tcc 方式
 
         // 2. 获取事务传播状态
         DTXPropagationState propagationState = propagationResolver.resolvePropagationState(info);
 
         // 2.1 如果不参与分布式事务立即终止
         if (propagationState.isIgnored()) {
-            return info.getBusinessCallback().call();
+            return info.getBusinessCallback().call(); // 这个是直接执行业务方法
         }
 
         // 3. 获取本地分布式事务控制器
@@ -82,6 +82,9 @@ public class DTXServiceExecutor {
             Set<String> transactionTypeSet = globalContext.txContext(info.getGroupId()).getTransactionTypes();
             transactionTypeSet.add(transactionType);
 
+            /**
+             * 业务执行前会执行这个方法
+             */
             dtxLocalControl.preBusinessCode(info);
 
             // 4.2 业务执行前
@@ -89,12 +92,13 @@ public class DTXServiceExecutor {
                     info.getGroupId(), info.getUnitId(), "pre business code, unit type: {}", transactionType);
 
             // 4.3 执行业务
-            Object result = dtxLocalControl.doBusinessCode(info);
+            Object result = dtxLocalControl.doBusinessCode(info);  //开始执行业务 这时开始进入另外一个切面 也就是Rpc 调用
 
             // 4.4 业务执行成功
             txLogger.transactionInfo(info.getGroupId(), info.getUnitId(), "business success");
+            //如果是事务的参与者 需要加入事务组
             dtxLocalControl.onBusinessCodeSuccess(info, result);
-            return result;
+            return result; // 会继续执行业务员 //如果参与者没有调用远程会执行到finally
         } catch (TransactionException e) {
             txLogger.error(info.getGroupId(), info.getUnitId(), "before business code error");
             throw e;

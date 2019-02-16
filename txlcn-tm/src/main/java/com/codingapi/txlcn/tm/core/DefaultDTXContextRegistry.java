@@ -41,6 +41,9 @@ public class DefaultDTXContextRegistry implements DTXContextRegistry {
     @Override
     public DTXContext create(String groupId) throws TransactionException {
         try {
+            /**
+             * redis 存储事务组信息
+             */
             fastStorage.initGroup(groupId);
         } catch (FastStorageException e) {
             // idempotent processing

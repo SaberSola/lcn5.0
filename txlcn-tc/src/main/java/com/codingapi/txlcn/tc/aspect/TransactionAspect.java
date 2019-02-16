@@ -76,17 +76,26 @@ public class TransactionAspect implements Ordered {
 
     @Around("txTransactionPointcut()")
     public Object transactionRunning(ProceedingJoinPoint point) throws Throwable {
+        /**
+         * 主要包括事务信息
+         */
         DTXInfo dtxInfo = DTXInfo.getFromCache(point);
         TxTransaction txTransaction = dtxInfo.getBusinessMethod().getAnnotation(TxTransaction.class);
         dtxInfo.setTransactionType(txTransaction.type());
-        dtxInfo.setTransactionPropagation(txTransaction.propagation());
+        dtxInfo.setTransactionPropagation(txTransaction.propagation());  //设置事务的类型 事务的传播机制
         return dtxLogicWeaver.runTransaction(dtxInfo, point::proceed);
     }
 
+    /**
+     * 切面入口
+     * @param point
+     * @return
+     * @throws Throwable
+     */
     @Around("lcnTransactionPointcut() && !txcTransactionPointcut()" +
             "&& !tccTransactionPointcut() && !txTransactionPointcut()")
     public Object runWithLcnTransaction(ProceedingJoinPoint point) throws Throwable {
-        DTXInfo dtxInfo = DTXInfo.getFromCache(point);
+        DTXInfo dtxInfo = DTXInfo.getFromCache(point);  //获取事务单元 没有则创建 参与着进入到这个切面
         LcnTransaction lcnTransaction = dtxInfo.getBusinessMethod().getAnnotation(LcnTransaction.class);
         dtxInfo.setTransactionType(Transactions.LCN);
         dtxInfo.setTransactionPropagation(lcnTransaction.propagation());

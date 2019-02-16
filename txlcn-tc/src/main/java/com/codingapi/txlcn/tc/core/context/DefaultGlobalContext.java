@@ -136,13 +136,17 @@ public class DefaultGlobalContext implements TCGlobalContext {
         return tableStruct;
     }
 
+    /**
+     * 创建事务的上下文TxContext
+     * @return
+     */
     @Override
     public TxContext startTx() {
         TxContext txContext = new TxContext();
         // 事务发起方判断
         txContext.setDtxStart(!TracingContext.tracing().hasGroup());
         if (txContext.isDtxStart()) {
-            TracingContext.tracing().beginTransactionGroup();
+            TracingContext.tracing().beginTransactionGroup(); //开启事务追踪
         }
         txContext.setGroupId(TracingContext.tracing().groupId());
         String txContextKey = txContext.getGroupId() + ".dtx";

@@ -64,11 +64,23 @@ public class JoinGroupExecuteService implements RpcExecuteService {
     @Override
     public Serializable execute(TransactionCmd transactionCmd) throws TxManagerException {
         try {
+            /**
+             * 加入事务组 分布式事务的执行者 请求加入事务组
+             * 根据事务组Id new一个DefaultDTXContext 对象 参数为 groupId FastStorage(Manager cache)
+             */
             DTXContext dtxContext = dtxContextRegistry.get(transactionCmd.getGroupId());
+            //获取加入事务组的参数
             JoinGroupParams joinGroupParams = transactionCmd.getMsg().loadBean(JoinGroupParams.class);
+            /**
+             * 记录日志
+             */
             txLogger.transactionInfo(transactionCmd.getGroupId(), joinGroupParams.getUnitId(), "start join group");
+            /**
+             * 开始加入事务组
+             */
             transactionManager.join(dtxContext, joinGroupParams.getUnitId(), joinGroupParams.getUnitType(),
                     rpcClient.getAppName(transactionCmd.getRemoteKey()), joinGroupParams.getTransactionState());
+            //加入日志
             txLogger.transactionInfo(transactionCmd.getGroupId(), joinGroupParams.getUnitId(), "over join group");
         } catch (TransactionException e) {
             txLogger.error(this.getClass().getSimpleName(), e.getMessage());

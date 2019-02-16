@@ -36,8 +36,8 @@ public interface TransactionManager {
     /**
      * 分布式事务成员加入
      *
-     * @param dtxContext       dtxTransaction
-     * @param unitId           unitId
+     * @param dtxContext       dtxTransaction   分布式事务上下文
+     * @param unitId           unitId           分布式事务单元Id
      * @param unitType         unitType
      * @param modId            modId
      * @param transactionState transactionState

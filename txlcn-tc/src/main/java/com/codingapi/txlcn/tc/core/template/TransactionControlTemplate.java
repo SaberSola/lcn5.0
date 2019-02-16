@@ -73,10 +73,10 @@ public class TransactionControlTemplate {
     /**
      * Client创建事务组操作集合
      *
-     * @param groupId         groupId
-     * @param unitId          unitId
-     * @param transactionInfo transactionInfo
-     * @param transactionType transactionType
+     * @param groupId         groupId 事务组Id
+     * @param unitId          unitId  单元事务id
+     * @param transactionInfo transactionInfo  事务的切面信息
+     * @param transactionType transactionType   事务类型
      * @throws TransactionException 创建group失败时抛出
      */
     public void createGroup(String groupId, String unitId, TransactionInfo transactionInfo, String transactionType)
@@ -112,10 +112,16 @@ public class TransactionControlTemplate {
     public void joinGroup(String groupId, String unitId, String transactionType, TransactionInfo transactionInfo)
             throws TransactionException {
         try {
+            //记录日志
             txLogger.transactionInfo(groupId, unitId, "join group > {} > groupId: {xid}, unitId: {uid}", transactionType);
-
+            /**
+             * 发送netty消息
+             */
             reliableMessenger.joinGroup(groupId, unitId, transactionType, DTXLocalContext.transactionState());
 
+            /**
+             * 再次记录日志 是否考虑 换成 disruptor 比起线程池的消耗
+             */
             txLogger.transactionInfo(groupId, unitId, "{xid} join group message over.");
 
             // 异步检测
@@ -141,11 +147,17 @@ public class TransactionControlTemplate {
      */
     public void notifyGroup(String groupId, String unitId, String transactionType, int state) {
         try {
+            /**
+             * 日志记录 区分情况是参与者 还是 发起者
+             */
             txLogger.transactionInfo(
                     groupId, unitId, "notify group > {} > groupId: {xid}, unitId: {uid}, state: {}.", transactionType, state);
             if (globalContext.isDTXTimeout()) {
                 throw new LcnBusinessException("dtx timeout.");
             }
+            /**
+             * 开始通知事务组操作
+             */
             reliableMessenger.notifyGroup(groupId, state);
             transactionCleanTemplate.clean(groupId, unitId, transactionType, state);
             log.debug("{} > close transaction group.", transactionType);

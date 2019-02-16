@@ -67,12 +67,24 @@ public class SimpleTransactionManager implements TransactionManager {
     @Override
     public void begin(String groupId) throws TransactionException {
         try {
+            /**
+             * 开启分布式事务
+             */
             dtxContextRegistry.create(groupId);
         } catch (TransactionException e) {
             throw new TransactionException(e);
         }
     }
 
+    /**
+     * 分布式事务组成员加入
+     * @param dtxContext       dtxTransaction 分布式事务上下文
+     * @param unitId           unitId         分布式事务单元id
+     * @param unitType         unitType       分布式事务单元类型 lcn tcc txc
+     * @param modId            modId          远程标识
+     * @param userState        0 回滚 1 提交
+     * @throws TransactionException
+     */
     @Override
     public void join(DTXContext dtxContext, String unitId, String unitType, String modId, int userState) throws TransactionException {
         log.debug("unit:{} joined group:{}", unitId, dtxContext.getGroupId());
