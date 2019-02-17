@@ -59,12 +59,6 @@
                 <version>${codingapi.txlcn.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.example</groupId>
-                <artifactId>demo-common</artifactId>
-                <version>5.0.1.RELEASE</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 </project>
